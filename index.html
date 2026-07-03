@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>터치 뽑킹</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poor+Story&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ================= 전자칠판 최적화 전역 설정 ================= */
+  html, body {
+    width:100%; height:100%;
+    margin:0; padding:0;
+    overflow:hidden;
+    touch-action:none;
+    overscroll-behavior:none;
+    -webkit-user-select:none; user-select:none;
+    -webkit-user-drag:none;
+    -webkit-tap-highlight-color:transparent;
+    background:#0d1117;
+  }
+  * {
+    box-sizing:border-box;
+    touch-action:none;
+    -webkit-user-select:none; user-select:none;
+    -webkit-user-drag:none;
+    -webkit-tap-highlight-color:transparent;
+  }
+  img { pointer-events:none; -webkit-user-drag:none; }
+
+  body { font-family:'Noto Sans KR', sans-serif; }
+
+  #app {
+    position:fixed; inset:0;
+    width:100vw; height:100dvh; height:100vh;
+    overflow:hidden;
+  }
+
+  .screen {
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .35s ease;
+  }
+  .screen.active { opacity:1; pointer-events:auto; }
+
+  /* ---------- 설정 화면 ---------- */
+  #setupScreen {
+    background:radial-gradient(circle at 50% 20%, #1c2333, #05070c 70%);
+    padding:2vmin;
+  }
+  .setup-card {
+    width:min(92vw, 560px);
+    max-height:94vh;
+    background:rgba(255,255,255,0.04);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:clamp(18px, 3vmin, 30px);
+    padding:clamp(20px,4vmin,40px) clamp(20px,3.5vmin,36px) clamp(20px,3vmin,32px);
+    text-align:center;
+    box-shadow:0 20px 60px rgba(0,0,0,0.5);
+  }
+  .title {
+    font-family:'Poor Story', cursive;
+    font-weight:400;
+    font-size:clamp(38px, 7vmin, 64px);
+    letter-spacing:1px;
+    background:linear-gradient(135deg, #ffd166, #ff6b6b 50%, #4ecdc4);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    margin-bottom:6px;
+  }
+  .subtitle { color:#8892a6; font-size:clamp(13px,2vmin,16px); margin-bottom:clamp(18px,4vmin,32px); }
+
+  .option-row { margin-bottom:clamp(16px,3.2vmin,28px); text-align:left; }
+  .option-label { color:#e6e9f0; font-weight:700; font-size:clamp(14px,2.4vmin,17px); margin-bottom:clamp(8px,1.8vmin,14px); display:block; text-align:center; }
+
+  .stepper {
+    display:flex; align-items:center; justify-content:center; gap:clamp(14px,3vmin,24px);
+  }
+  .stepper button {
+    width:clamp(44px,7vmin,58px); height:clamp(44px,7vmin,58px); border-radius:50%;
+    border:none; font-size:clamp(20px,3.4vmin,28px); font-weight:900;
+    background:linear-gradient(135deg,#4ecdc4,#2ba39a);
+    color:#fff; cursor:pointer;
+    box-shadow:0 6px 14px rgba(78,205,196,0.35);
+    transition:transform .1s;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .stepper button:active { transform:scale(0.9); }
+  .stepper .count-display {
+    min-width:clamp(70px,10vmin,100px);
+    font-size:clamp(34px,6vmin,44px); font-weight:400; color:#fff;
+    font-family:'Poor Story', cursive;
+    text-align:center;
+  }
+
+  .toggle-group { display:flex; gap:clamp(8px,1.6vmin,12px); justify-content:center; }
+  .toggle-btn {
+    flex:1; padding:clamp(11px,2.2vmin,15px) 0; border-radius:clamp(12px,2vmin,16px); border:2px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.03); color:#aeb6c5; font-size:clamp(14px,2.4vmin,17px); font-weight:700;
+    cursor:pointer; transition:all .15s;
+  }
+  .toggle-btn.selected {
+    border-color:#ffd166; background:rgba(255,209,102,0.15); color:#ffd166;
+  }
+
+  .start-btn {
+    margin-top:4px; width:100%; padding:clamp(15px,2.8vmin,20px) 0; border:none; border-radius:clamp(14px,2.4vmin,20px);
+    font-size:clamp(20px,3.2vmin,24px); font-weight:400; font-family:'Poor Story', cursive;
+    letter-spacing:2px;
+    background:linear-gradient(135deg, #ff6b6b, #ff8e53);
+    color:#fff; cursor:pointer;
+    box-shadow:0 12px 28px rgba(255,107,107,0.4);
+    transition:transform .1s;
+  }
+  .start-btn:active { transform:scale(0.97); }
+
+  /* ---------- 터치 화면 ---------- */
+  #touchScreen { background:#000; }
+  .instruction {
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    color:rgba(255,255,255,0.55); font-size:clamp(20px,3.6vmin,32px); font-weight:700;
+    text-align:center; pointer-events:none; transition:opacity .4s;
+    line-height:1.6; width:90vw;
+  }
+  .instruction .sub { display:block; font-size:0.55em; color:rgba(255,255,255,0.3); margin-top:10px; }
+
+  .top-banner {
+    position:absolute; top:0; left:0; right:0;
+    display:flex; flex-direction:column; align-items:center;
+    padding-top:clamp(14px,3vh,30px);
+    pointer-events:none;
+    z-index:20;
+  }
+
+  .timer {
+    font-family:'Poor Story', cursive;
+    font-weight:400;
+    font-size:clamp(46px, 9vmin, 78px);
+    color:#fff;
+    text-shadow:0 0 30px rgba(255,255,255,0.4);
+    transition:transform .12s;
+    line-height:1;
+  }
+  .timer.pulse { transform:scale(1.25); }
+
+  .status-text {
+    font-family:'Poor Story', cursive;
+    font-weight:400;
+    font-size:clamp(30px, 5.5vmin, 50px);
+    color:#ffd166;
+    opacity:0;
+    transform:translateY(-16px) scale(0.85);
+    text-shadow:0 0 30px rgba(255,209,102,0.6);
+    transition:all .35s cubic-bezier(.34,1.56,.64,1);
+    text-align:center;
+    background:rgba(0,0,0,0.35);
+    padding:8px 26px;
+    border-radius:999px;
+    backdrop-filter:blur(4px);
+  }
+  .status-text.show { opacity:1; transform:translateY(0) scale(1); }
+
+  .touch-point {
+    position:absolute; width:min(13vmin,110px); height:min(13vmin,110px);
+    transform:translate(-50%,-50%);
+    display:flex; align-items:center; justify-content:center;
+    border-radius:50%;
+    background:rgba(255,255,255,0.08);
+    border:3px solid rgba(255,255,255,0.35);
+    font-size:min(6.5vmin,54px);
+    pointer-events:none;
+    transition:opacity .5s, border-color .3s, background .3s, box-shadow .3s;
+  }
+  .touch-point .badge {
+    position:absolute; top:-14px; right:-14px;
+    width:clamp(28px,4.2vmin,38px); height:clamp(28px,4.2vmin,38px); border-radius:50%;
+    background:#ff6b6b; color:#fff; font-weight:400; font-size:clamp(15px,2.6vmin,20px);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Poor Story', cursive;
+    opacity:0; transform:scale(0.3);
+    transition:all .3s cubic-bezier(.34,1.56,.64,1);
+    box-shadow:0 4px 10px rgba(0,0,0,0.4);
+  }
+  .touch-point .badge.show { opacity:1; transform:scale(1); }
+
+  .touch-point.dimmed { opacity:0.18; border-color:rgba(255,255,255,0.1); }
+  .touch-point.winner {
+    border-color:#ffd166; background:rgba(255,209,102,0.18);
+    box-shadow:0 0 40px rgba(255,209,102,0.7), 0 0 80px rgba(255,209,102,0.3);
+    animation:winnerPulse 1s ease-in-out infinite;
+  }
+  @keyframes winnerPulse {
+    0%,100% { transform:translate(-50%,-50%) scale(1); }
+    50% { transform:translate(-50%,-50%) scale(1.12); }
+  }
+
+  .bottom-bar {
+    position:absolute; bottom:clamp(18px,4vh,34px); left:50%; transform:translate(-50%,0);
+    display:flex; gap:14px; opacity:0; pointer-events:none; transition:opacity .4s;
+    z-index:30;
+  }
+  .bottom-bar.show { opacity:1; pointer-events:auto; }
+  .bottom-bar button {
+    padding:clamp(14px,2.6vmin,18px) clamp(26px,5vmin,40px); border-radius:clamp(12px,2vmin,16px); border:none;
+    font-size:clamp(17px,2.8vmin,20px); font-weight:400;
+    font-family:'Poor Story', cursive; cursor:pointer;
+    background:linear-gradient(135deg,#4ecdc4,#2ba39a); color:#fff;
+    box-shadow:0 10px 24px rgba(78,205,196,0.4);
+    transition:transform .1s;
+  }
+  .bottom-bar button:active { transform:scale(0.95); }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- 설정 화면 -->
+  <div class="screen active" id="setupScreen">
+    <div class="setup-card">
+      <div class="title">터치 뽑킹</div>
+      <div class="subtitle">손가락을 올리고 랜덤으로 뽑아요!</div>
+
+      <div class="option-row">
+        <span class="option-label">몇 명 뽑을까요?</span>
+        <div class="stepper">
+          <button id="minusBtn">−</button>
+          <div class="count-display" id="countDisplay">1</div>
+          <button id="plusBtn">+</button>
+        </div>
+      </div>
+
+      <div class="option-row">
+        <span class="option-label">순서대로 숫자를 매길까요?</span>
+        <div class="toggle-group">
+          <button class="toggle-btn selected" id="numYes">예</button>
+          <button class="toggle-btn" id="numNo">아니요</button>
+        </div>
+      </div>
+
+      <button class="start-btn" id="startBtn">시작하기</button>
+    </div>
+  </div>
+
+  <!-- 터치 화면 -->
+  <div class="screen" id="touchScreen">
+    <div class="instruction" id="instruction">
+      화면에 손가락을 올리세요
+      <span class="sub">전원이 손가락을 올려주세요</span>
+    </div>
+    <div class="top-banner">
+      <div class="timer" id="timer"></div>
+      <div class="status-text" id="statusText"></div>
+    </div>
+    <div class="bottom-bar" id="bottomBar">
+      <button id="restartBtn">다시 뽑기</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // ================= 전자칠판 제스처 차단 =================
+  document.addEventListener('contextmenu', e=> e.preventDefault());
+  document.addEventListener('dblclick', e=> e.preventDefault());
+  document.addEventListener('gesturestart', e=> e.preventDefault());
+  document.addEventListener('gesturechange', e=> e.preventDefault());
+  document.addEventListener('wheel', e=>{ if(e.ctrlKey) e.preventDefault(); }, {passive:false});
+  document.addEventListener('touchmove', e=>{ e.preventDefault(); }, {passive:false});
+  document.addEventListener('touchstart', e=>{ if(e.touches.length > 1) e.preventDefault(); }, {passive:false});
+  window.addEventListener('keydown', e=>{
+    if((e.ctrlKey||e.metaKey) && ['+','-','=','0'].includes(e.key)) e.preventDefault();
+  });
+
+  // ---------------- 상태 ----------------
+  let pickCount = 1;
+  let useNumbering = true;
+  let touches = new Map(); // pointerId -> {x,y,emoji,el,emojiEl,badgeEl}
+  let usedEmojis = new Set();
+  let countdownTimer = null;
+  let countValue = 10;
+  let phase = 'idle'; // idle, countdown, revealing, revealed
+
+  const EMOJI_POOL = ["😀","😎","🤩","🥳","😂","🤪","😇","🤠","👻","🐶","🐱","🐰","🦊","🐼","🐸","🐵","🦁","🐯","🐨","🐷",
+    "🐔","🦄","🐢","🐙","🦋","🐝","🐬","🦖","🐧","🦉","🍎","🍉","🍇","🍓","🍒","🍑","🍕","🍔","🍟","🌭",
+    "🍩","🍭","🍦","🎂","🍿","🥨","🥑","🍄","🌈","⭐","🔥","💧","⚡","❄️","🌙","☀️","🎈","🎉","🎁","🏆",
+    "⚽","🏀","🎮","🎲","🚀","✈️","🚗","🚲","⛄","🎃","🎄","👑","💎","🔔","🎯","🎨","🎸","🥁","🧩","🪁",
+    "🦕","🦩","🐳","🦈","🐊","🦔","🐿️","🦥","🐴","🐺","🦒","🐘","🦓","🐮","🐗","🦃","🦢","🐍","🦎","🐞",
+    "🌵","🌴","🍀","🌸","🌻","🍁","🍂","🌺","🥕","🌽","🧁","🍪","🍫","🍬","🥝","🍋","🍊","🍌","🥥"];
+
+  function pickEmoji(){
+    let candidates = EMOJI_POOL.filter(e=> !usedEmojis.has(e));
+    if(candidates.length === 0) candidates = EMOJI_POOL;
+    const emoji = candidates[Math.floor(Math.random()*candidates.length)];
+    usedEmojis.add(emoji);
+    return emoji;
+  }
+
+  // ---------------- 오디오 ----------------
+  let actx = null;
+  function ctx(){ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); return actx; }
+  function beep(freq=800, dur=0.09, type='square', vol=0.18, delay=0){
+    try{
+      const ac = ctx();
+      const t0 = ac.currentTime + delay;
+      const osc = ac.createOscillator();
+      const gain = ac.createGain();
+      osc.type = type; osc.frequency.setValueAtTime(freq, t0);
+      gain.gain.setValueAtTime(vol, t0);
+      gain.gain.exponentialRampToValueAtTime(0.001, t0+dur);
+      osc.connect(gain); gain.connect(ac.destination);
+      osc.start(t0); osc.stop(t0+dur);
+    }catch(e){}
+  }
+  function fanfare(){
+    [523,659,784,1046].forEach((f,i)=> beep(f, 0.22, 'triangle', 0.22, i*0.12));
+  }
+  function popSound(){ beep(1200,0.12,'sine',0.25); beep(1600,0.15,'sine',0.2,0.06); }
+
+  // ---------------- 화면 전환 ----------------
+  const setupScreen = document.getElementById('setupScreen');
+  const touchScreen = document.getElementById('touchScreen');
+  const instruction = document.getElementById('instruction');
+  const timerEl = document.getElementById('timer');
+  const statusText = document.getElementById('statusText');
+  const bottomBar = document.getElementById('bottomBar');
+
+  function showScreen(el){
+    [setupScreen, touchScreen].forEach(s=>s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ---------------- 설정 화면 로직 (pointerdown 사용) ----------------
+  const countDisplay = document.getElementById('countDisplay');
+
+  function onTap(el, handler){
+    el.addEventListener('pointerdown', (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      handler(e);
+    });
+  }
+
+  onTap(document.getElementById('minusBtn'), ()=>{
+    pickCount = Math.max(1, pickCount-1);
+    countDisplay.textContent = pickCount;
+  });
+  onTap(document.getElementById('plusBtn'), ()=>{
+    pickCount = Math.min(20, pickCount+1);
+    countDisplay.textContent = pickCount;
+  });
+  const numYes = document.getElementById('numYes');
+  const numNo = document.getElementById('numNo');
+  onTap(numYes, ()=>{ useNumbering=true; numYes.classList.add('selected'); numNo.classList.remove('selected'); });
+  onTap(numNo, ()=>{ useNumbering=false; numNo.classList.add('selected'); numYes.classList.remove('selected'); });
+
+  onTap(document.getElementById('startBtn'), ()=>{
+    ctx();
+    showScreen(touchScreen);
+    resetTouchScreen();
+    startCountdown();
+  });
+
+  onTap(document.getElementById('restartBtn'), ()=>{
+    resetTouchScreen();
+    showScreen(setupScreen);
+  });
+
+  // ---------------- 터치 화면 로직 ----------------
+  function resetTouchScreen(){
+    clearInterval(countdownTimer);
+    touches.forEach(t=>t.el.remove());
+    touches.clear();
+    usedEmojis.clear();
+    phase = 'idle';
+    countValue = 10;
+    timerEl.textContent = '';
+    statusText.classList.remove('show');
+    statusText.textContent = '';
+    bottomBar.classList.remove('show');
+    instruction.style.opacity = '1';
+  }
+
+  function startCountdown(){
+    phase = 'countdown';
+    countValue = 10;
+    timerEl.textContent = countValue;
+    beep(700,0.1,'square',0.15);
+    countdownTimer = setInterval(()=>{
+      countValue--;
+      if(countValue > 0){
+        timerEl.textContent = countValue;
+        timerEl.classList.add('pulse');
+        setTimeout(()=>timerEl.classList.remove('pulse'), 130);
+        beep(countValue<=3?1000:700, 0.1, 'square', 0.18);
+      } else {
+        clearInterval(countdownTimer);
+        timerEl.textContent = '';
+        onCountdownEnd();
+      }
+    }, 1000);
+  }
+
+  function onCountdownEnd(){
+    phase = 'revealing';
+    instruction.style.opacity = '0';
+    statusText.textContent = '뽑습니다~';
+    statusText.classList.add('show');
+    beep(500,0.15,'sawtooth',0.2);
+
+    setTimeout(()=>{
+      statusText.classList.remove('show');
+      setTimeout(()=> doReveal(), 350);
+    }, 900);
+  }
+
+  function doReveal(){
+    phase = 'revealed';
+
+    if(touches.size === 0){
+      statusText.textContent = '아무도 없어요 😢';
+      statusText.classList.add('show');
+      bottomBar.classList.add('show');
+      return;
+    }
+
+    const ids = [...touches.keys()];
+    for(let i=ids.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ids[i],ids[j]]=[ids[j],ids[i]]; }
+    const winners = ids.slice(0, Math.min(pickCount, ids.length));
+    const losers = ids.slice(Math.min(pickCount, ids.length));
+
+    losers.forEach(id=>{
+      const t = touches.get(id);
+      if(t) t.el.classList.add('dimmed');
+    });
+
+    winners.forEach((id, idx)=>{
+      setTimeout(()=>{
+        const t = touches.get(id);
+        if(!t) return;
+        t.el.classList.add('winner');
+        popSound();
+        if(useNumbering){
+          t.badgeEl.textContent = idx+1;
+          t.badgeEl.classList.add('show');
+        }
+      }, idx * 550);
+    });
+
+    setTimeout(()=>{
+      fanfare();
+      statusText.textContent = winners.length>0 ? '🎉 뽑기 완료! 🎉' : '결과 없음';
+      statusText.classList.add('show');
+      bottomBar.classList.add('show');
+    }, winners.length * 550 + 300);
+  }
+
+  // ---------------- 터치 포인트 (Pointer Events, 다중 터치) ----------------
+  function createTouchPoint(id, x, y){
+    const el = document.createElement('div');
+    el.className = 'touch-point';
+    el.style.left = x + 'px';
+    el.style.top = y + 'px';
+
+    const emojiEl = document.createElement('div');
+    const emoji = pickEmoji();
+    emojiEl.textContent = emoji;
+    el.appendChild(emojiEl);
+
+    const badgeEl = document.createElement('div');
+    badgeEl.className = 'badge';
+    el.appendChild(badgeEl);
+
+    touchScreen.appendChild(el);
+    touches.set(id, { x, y, emoji, el, emojiEl, badgeEl });
+    beep(900 + Math.random()*300, 0.06, 'sine', 0.12);
+  }
+
+  function moveTouchPoint(id, x, y){
+    const t = touches.get(id);
+    if(!t) return;
+    t.x = x; t.y = y;
+    t.el.style.left = x + 'px';
+    t.el.style.top = y + 'px';
+  }
+
+  function removeTouchPoint(id){
+    const t = touches.get(id);
+    if(!t) return;
+    usedEmojis.delete(t.emoji);
+    t.el.style.opacity = '0';
+    setTimeout(()=> t.el.remove(), 400);
+    touches.delete(id);
+  }
+
+  touchScreen.addEventListener('pointerdown', (e)=>{
+    if(e.target.closest('.bottom-bar')) return;
+    if(phase !== 'countdown') return;
+    e.preventDefault();
+    try{ touchScreen.setPointerCapture(e.pointerId); }catch(err){}
+    const rect = touchScreen.getBoundingClientRect();
+    createTouchPoint(e.pointerId, e.clientX - rect.left, e.clientY - rect.top);
+    instruction.style.opacity = '0.15';
+  });
+
+  touchScreen.addEventListener('pointermove', (e)=>{
+    if(phase !== 'countdown') return;
+    if(!touches.has(e.pointerId)) return;
+    e.preventDefault();
+    const rect = touchScreen.getBoundingClientRect();
+    moveTouchPoint(e.pointerId, e.clientX - rect.left, e.clientY - rect.top);
+  });
+
+  function handlePointerEnd(e){
+    if(phase !== 'countdown') return;
+    if(!touches.has(e.pointerId)) return;
+    removeTouchPoint(e.pointerId);
+  }
+  touchScreen.addEventListener('pointerup', handlePointerEnd);
+  touchScreen.addEventListener('pointercancel', handlePointerEnd);
+
+})();
+</script>
+</body>
+</html>
