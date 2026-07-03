@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+<head>    
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5YW0T2C109"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-5YW0T2C109');
+    </script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>터치 뽑킹</title>
@@ -132,20 +140,6 @@
   }
   .start-btn:active { transform:scale(0.97); }
 
-  /* 설정 화면용 다른 게임 고르기 버튼 */
-  .setup-other-game-btn {
-    display:flex; align-items:center; justify-content:center;
-    margin-top:12px; width:100%; padding:clamp(12px,2.2vmin,16px) 0;
-    border-radius:clamp(12px,2vmin,16px);
-    border:1px solid rgba(255,255,255,0.15);
-    font-size:clamp(15px,2.4vmin,18px); font-weight:400;
-    font-family:var(--deco-font); cursor:pointer;
-    background:rgba(255,255,255,0.05); color:#aeb6c5;
-    text-decoration:none;
-    transition:transform .1s, background .15s;
-  }
-  .setup-other-game-btn:active { transform:scale(0.97); background:rgba(255,255,255,0.1); }
-
   /* ---------- 터치 화면 ---------- */
   #touchScreen { background:#000; }
   .instruction {
@@ -243,7 +237,7 @@
   }
   .bottom-bar button#restartBtn:active { transform:scale(0.95); }
 
-  /* 터치 화면 결과 아래의 다른 게임 고르기 링크 버튼 스타일 */
+  /* 다른 게임 고르기 링크 버튼 스타일 */
   .other-game-btn {
     padding:clamp(10px,2vmin,14px) clamp(20px,4vmin,30px);
     border-radius:clamp(10px,2vmin,14px);
@@ -360,6 +354,7 @@
 <body>
 <div id="app">
 
+  <!-- 언어 선택 버튼 (설정 화면에서만 노출) -->
   <button id="langBtn" type="button">
     <span class="lang-globe">🌐</span>
     <img class="lang-flag-icon" id="langBtnFlag" src="https://flagcdn.com/w40/kr.png" alt="">
@@ -367,6 +362,7 @@
     <span class="lang-caret">▾</span>
   </button>
 
+  <!-- 언어 선택 모달 -->
   <div id="langModalOverlay">
     <div id="langModalBox">
       <div class="lang-modal-header">
@@ -380,6 +376,7 @@
     </div>
   </div>
 
+  <!-- 설정 화면 -->
   <div class="screen active" id="setupScreen">
     <div class="setup-card">
       <div class="title" id="titleText">터치 뽑킹</div>
@@ -403,11 +400,10 @@
       </div>
 
       <button class="start-btn" id="startBtn">시작하기</button>
-      
-      <a href="https://킹수학.com" id="setupOtherGameBtn" class="setup-other-game-btn">다른 게임 고르기</a>
     </div>
   </div>
 
+  <!-- 터치 화면 -->
   <div class="screen" id="touchScreen">
     <div class="instruction" id="instruction">
       <span id="instructionMainText">화면에 손가락을 올리세요</span>
@@ -465,6 +461,8 @@
 
   // ---------------- 오디오 ----------------
   let actx = null;
+  let lastBeepTime = 0; // 다중 터치 오디오 크래시 방지용 변수
+
   function ctx(){ if(!actx) actx = new (window.AudioContext||window.webkitAudioContext)(); return actx; }
   function beep(freq=800, dur=0.09, type='square', vol=0.18, delay=0){
     try{
@@ -501,7 +499,6 @@
   // ================= 다국어(Language) 모듈 ================= //
   const LANG_STORAGE_KEY = 'touchppobking_lang';
 
-  // 한국어에는 영어(en-sub)를 병기하도록 HTML 태그 포함하여 수정됨
   const translations = {
     ko: { 
       name:'한국어', enName:'Korean', country:'kr', 
@@ -560,10 +557,7 @@
   }
 
   function applyStaticTranslations(){
-    // 브라우저 탭 타이틀은 HTML 태그를 제거하고 적용
     document.title = t('title').replace(/<[^>]*>?/gm, ''); 
-    
-    // HTML 태그가 포함되어 있으므로 innerHTML을 사용
     document.getElementById('titleText').innerHTML = t('title');
     document.getElementById('subtitleText').innerHTML = t('subtitle');
     document.getElementById('pickCountLabelText').innerHTML = t('pickCountLabel');
@@ -575,7 +569,6 @@
     document.getElementById('instructionSubText').innerHTML = t('instructionSub');
     document.getElementById('restartBtn').innerHTML = t('restartBtn');
     document.getElementById('otherGameBtn').innerHTML = t('otherGameBtn');
-    document.getElementById('setupOtherGameBtn').innerHTML = t('otherGameBtn');
 
     document.documentElement.lang = currentLang === 'pt-br' ? 'pt' : currentLang;
     document.documentElement.style.setProperty('--deco-font',
@@ -675,7 +668,7 @@
     countDisplay.textContent = pickCount;
   });
   onTap(document.getElementById('plusBtn'), ()=>{
-    pickCount = Math.min(20, pickCount+1);
+    pickCount = Math.min(50, pickCount+1); // ★ 50명까지 지원하도록 변경
     countDisplay.textContent = pickCount;
   });
   const numYes = document.getElementById('numYes');
@@ -802,7 +795,13 @@
 
     touchScreen.appendChild(el);
     touches.set(id, { x, y, emoji, el, emojiEl, badgeEl });
-    beep(900 + Math.random()*300, 0.06, 'sine', 0.12);
+    
+    // ★ 오디오 과부하(크래시) 방지: 30ms 이내의 사운드는 1번만 출력되도록 쓰로틀링
+    const now = Date.now();
+    if (now - lastBeepTime > 30) {
+      beep(900 + Math.random()*300, 0.06, 'sine', 0.12);
+      lastBeepTime = now;
+    }
   }
 
   function moveTouchPoint(id, x, y){
@@ -825,19 +824,24 @@
   touchScreen.addEventListener('pointerdown', (e)=>{
     if(e.target.closest('.bottom-bar')) return;
     if(phase !== 'countdown') return;
-    e.preventDefault();
+    
+    if(e.cancelable) e.preventDefault(); // 다중 터치 시 이벤트 방해 최소화
     try{ touchScreen.setPointerCapture(e.pointerId); }catch(err){}
-    const rect = touchScreen.getBoundingClientRect();
-    createTouchPoint(e.pointerId, e.clientX - rect.left, e.clientY - rect.top);
+    
+    // ★ Layout Thrashing을 일으키는 getBoundingClientRect() 호출을 완전히 제거. 
+    // 전체화면이므로 clientX, clientY를 그대로 사용하여 프레임 급락 방지
+    createTouchPoint(e.pointerId, e.clientX, e.clientY);
     instruction.style.opacity = '0.15';
   });
 
   touchScreen.addEventListener('pointermove', (e)=>{
     if(phase !== 'countdown') return;
     if(!touches.has(e.pointerId)) return;
-    e.preventDefault();
-    const rect = touchScreen.getBoundingClientRect();
-    moveTouchPoint(e.pointerId, e.clientX - rect.left, e.clientY - rect.top);
+    
+    if(e.cancelable) e.preventDefault();
+    
+    // ★ 역시 성능 저하의 주범인 위치 재계산 로직 제거
+    moveTouchPoint(e.pointerId, e.clientX, e.clientY);
   });
 
   function handlePointerEnd(e){
