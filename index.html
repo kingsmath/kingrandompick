@@ -354,7 +354,6 @@
 <body>
 <div id="app">
 
-  <!-- 언어 선택 버튼 (설정 화면에서만 노출) -->
   <button id="langBtn" type="button">
     <span class="lang-globe">🌐</span>
     <img class="lang-flag-icon" id="langBtnFlag" src="https://flagcdn.com/w40/kr.png" alt="">
@@ -362,7 +361,6 @@
     <span class="lang-caret">▾</span>
   </button>
 
-  <!-- 언어 선택 모달 -->
   <div id="langModalOverlay">
     <div id="langModalBox">
       <div class="lang-modal-header">
@@ -376,7 +374,6 @@
     </div>
   </div>
 
-  <!-- 설정 화면 -->
   <div class="screen active" id="setupScreen">
     <div class="setup-card">
       <div class="title" id="titleText">터치 뽑킹</div>
@@ -403,7 +400,6 @@
     </div>
   </div>
 
-  <!-- 터치 화면 -->
   <div class="screen" id="touchScreen">
     <div class="instruction" id="instruction">
       <span id="instructionMainText">화면에 손가락을 올리세요</span>
@@ -641,9 +637,12 @@
 
   onTap(langBtn, openLangModal);
   onTap(langModalClose, closeLangModal);
-  langModalOverlay.addEventListener('pointerdown', (e)=>{
+  
+  // ★ 관통 클릭 방지를 위해 모달 외곽 닫기도 click으로 변경
+  langModalOverlay.addEventListener('click', (e)=>{
     if(e.target === langModalOverlay) closeLangModal();
   });
+  
   document.addEventListener('keydown', (e)=>{
     if(e.key === 'Escape' && langModalOverlay.classList.contains('lang-active')) closeLangModal();
   });
@@ -652,11 +651,12 @@
     setLanguage(detectInitialLang(), false);
   });
 
-  // ---------------- 설정 화면 로직 (pointerdown 사용) ----------------
+  // ---------------- 설정 화면 로직 (click 사용) ----------------
   const countDisplay = document.getElementById('countDisplay');
 
+  // ★ 가장 핵심적인 수정 부분: UI 이벤트 연결을 'click' (손을 뗄 때)으로 변경
   function onTap(el, handler){
-    el.addEventListener('pointerdown', (e)=>{
+    el.addEventListener('click', (e)=>{
       e.preventDefault();
       e.stopPropagation();
       handler(e);
@@ -668,7 +668,7 @@
     countDisplay.textContent = pickCount;
   });
   onTap(document.getElementById('plusBtn'), ()=>{
-    pickCount = Math.min(50, pickCount+1); // ★ 50명까지 지원하도록 변경
+    pickCount = Math.min(50, pickCount+1);
     countDisplay.textContent = pickCount;
   });
   const numYes = document.getElementById('numYes');
@@ -796,7 +796,6 @@
     touchScreen.appendChild(el);
     touches.set(id, { x, y, emoji, el, emojiEl, badgeEl });
     
-    // ★ 오디오 과부하(크래시) 방지: 30ms 이내의 사운드는 1번만 출력되도록 쓰로틀링
     const now = Date.now();
     if (now - lastBeepTime > 30) {
       beep(900 + Math.random()*300, 0.06, 'sine', 0.12);
@@ -821,15 +820,14 @@
     touches.delete(id);
   }
 
+  // 화면 터치 판정은 즉각적인 반응이 필수이므로 유지
   touchScreen.addEventListener('pointerdown', (e)=>{
     if(e.target.closest('.bottom-bar')) return;
     if(phase !== 'countdown') return;
     
-    if(e.cancelable) e.preventDefault(); // 다중 터치 시 이벤트 방해 최소화
+    if(e.cancelable) e.preventDefault();
     try{ touchScreen.setPointerCapture(e.pointerId); }catch(err){}
     
-    // ★ Layout Thrashing을 일으키는 getBoundingClientRect() 호출을 완전히 제거. 
-    // 전체화면이므로 clientX, clientY를 그대로 사용하여 프레임 급락 방지
     createTouchPoint(e.pointerId, e.clientX, e.clientY);
     instruction.style.opacity = '0.15';
   });
@@ -840,7 +838,6 @@
     
     if(e.cancelable) e.preventDefault();
     
-    // ★ 역시 성능 저하의 주범인 위치 재계산 로직 제거
     moveTouchPoint(e.pointerId, e.clientX, e.clientY);
   });
 
