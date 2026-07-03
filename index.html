@@ -1,13 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5YW0T2C109"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag() { dataLayer.push(arguments); }
-        gtag('js', new Date());
-        gtag('config', 'G-5YW0T2C109');
-    </script>
-
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>터치 뽑킹</title>
@@ -139,6 +132,20 @@
   }
   .start-btn:active { transform:scale(0.97); }
 
+  /* 설정 화면용 다른 게임 고르기 버튼 */
+  .setup-other-game-btn {
+    display:flex; align-items:center; justify-content:center;
+    margin-top:12px; width:100%; padding:clamp(12px,2.2vmin,16px) 0;
+    border-radius:clamp(12px,2vmin,16px);
+    border:1px solid rgba(255,255,255,0.15);
+    font-size:clamp(15px,2.4vmin,18px); font-weight:400;
+    font-family:var(--deco-font); cursor:pointer;
+    background:rgba(255,255,255,0.05); color:#aeb6c5;
+    text-decoration:none;
+    transition:transform .1s, background .15s;
+  }
+  .setup-other-game-btn:active { transform:scale(0.97); background:rgba(255,255,255,0.1); }
+
   /* ---------- 터치 화면 ---------- */
   #touchScreen { background:#000; }
   .instruction {
@@ -236,7 +243,7 @@
   }
   .bottom-bar button#restartBtn:active { transform:scale(0.95); }
 
-  /* 다른 게임 고르기 링크 버튼 스타일 */
+  /* 터치 화면 결과 아래의 다른 게임 고르기 링크 버튼 스타일 */
   .other-game-btn {
     padding:clamp(10px,2vmin,14px) clamp(20px,4vmin,30px);
     border-radius:clamp(10px,2vmin,14px);
@@ -353,7 +360,6 @@
 <body>
 <div id="app">
 
-  <!-- 언어 선택 버튼 (설정 화면에서만 노출) -->
   <button id="langBtn" type="button">
     <span class="lang-globe">🌐</span>
     <img class="lang-flag-icon" id="langBtnFlag" src="https://flagcdn.com/w40/kr.png" alt="">
@@ -361,7 +367,6 @@
     <span class="lang-caret">▾</span>
   </button>
 
-  <!-- 언어 선택 모달 -->
   <div id="langModalOverlay">
     <div id="langModalBox">
       <div class="lang-modal-header">
@@ -375,7 +380,6 @@
     </div>
   </div>
 
-  <!-- 설정 화면 -->
   <div class="screen active" id="setupScreen">
     <div class="setup-card">
       <div class="title" id="titleText">터치 뽑킹</div>
@@ -399,10 +403,11 @@
       </div>
 
       <button class="start-btn" id="startBtn">시작하기</button>
+      
+      <a href="https://킹수학.com" id="setupOtherGameBtn" class="setup-other-game-btn">다른 게임 고르기</a>
     </div>
   </div>
 
-  <!-- 터치 화면 -->
   <div class="screen" id="touchScreen">
     <div class="instruction" id="instruction">
       <span id="instructionMainText">화면에 손가락을 올리세요</span>
@@ -557,6 +562,7 @@
   function applyStaticTranslations(){
     // 브라우저 탭 타이틀은 HTML 태그를 제거하고 적용
     document.title = t('title').replace(/<[^>]*>?/gm, ''); 
+    
     // HTML 태그가 포함되어 있으므로 innerHTML을 사용
     document.getElementById('titleText').innerHTML = t('title');
     document.getElementById('subtitleText').innerHTML = t('subtitle');
@@ -569,6 +575,7 @@
     document.getElementById('instructionSubText').innerHTML = t('instructionSub');
     document.getElementById('restartBtn').innerHTML = t('restartBtn');
     document.getElementById('otherGameBtn').innerHTML = t('otherGameBtn');
+    document.getElementById('setupOtherGameBtn').innerHTML = t('otherGameBtn');
 
     document.documentElement.lang = currentLang === 'pt-br' ? 'pt' : currentLang;
     document.documentElement.style.setProperty('--deco-font',
