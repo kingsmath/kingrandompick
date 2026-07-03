@@ -12,6 +12,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>터치 뽑킹</title>
+<meta name="description" content="여러 명이 동시에 손가락을 화면에 올리고 랜덤으로 원하는 인원을 뽑는 터치 뽑기 게임. 전자칠판, 태블릿 전용 무료 추첨 도구!">
+<meta name="keywords" content="터치 뽑킹, 랜덤 뽑기, 추첨 게임, 전자칠판 게임, 교실 뽑기, 발표자 뽑기, Touch Pick King">
+<meta property="og:type" content="website">
+<meta property="og:title" content="터치 뽑킹 - 손가락 터치 랜덤 뽑기 게임">
+<meta property="og:description" content="여러 명이 동시에 손가락을 화면에 올리고 랜덤으로 원하는 인원을 뽑는 터치 뽑기 게임. 전자칠판, 태블릿 전용 무료 추첨 도구!">
+<meta property="og:image" content="1.webp">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="터치 뽑킹 - 손가락 터치 랜덤 뽑기 게임">
+<meta name="twitter:description" content="여러 명이 동시에 손가락을 화면에 올리고 랜덤으로 원하는 인원을 뽑는 터치 뽑기 게임. 전자칠판, 태블릿 전용 무료 추첨 도구!">
+<meta name="twitter:image" content="1.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poor+Story&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
@@ -54,21 +65,6 @@
     transition:opacity .35s ease;
   }
   .screen.active { opacity:1; pointer-events:auto; }
-
-  /* ---------- 병기된 영어 텍스트 스타일 ---------- */
-  .en-sub {
-    font-size: 0.65em;
-    font-weight: 400;
-    opacity: 0.75;
-    margin-left: 6px;
-    letter-spacing: 0;
-    font-family: 'Noto Sans KR', sans-serif;
-  }
-  .en-sub.block {
-    display: block;
-    margin-top: 4px;
-    margin-left: 0;
-  }
 
   /* ---------- 설정 화면 ---------- */
   #setupScreen {
@@ -220,6 +216,11 @@
     50% { transform:translate(-50%,-50%) scale(1.12); }
   }
 
+  /* 모바일: 이모지가 손가락 밖으로 보이도록 3배 확대 */
+  @media (max-width: 768px) {
+    .touch-point { font-size:min(19.5vmin, 162px); }
+  }
+
   .bottom-bar {
     position:absolute; bottom:clamp(18px,4vh,34px); left:50%; transform:translate(-50%,0);
     display:flex; flex-direction:column; gap:12px; opacity:0; pointer-events:none; transition:opacity .4s;
@@ -250,6 +251,12 @@
     display: flex; align-items: center; justify-content: center; text-align: center;
   }
   .other-game-btn:active { transform:scale(0.95); background:rgba(255,255,255,0.1); }
+  .setup-other-game-btn {
+    margin-top:10px; width:100%;
+    font-size:clamp(12px,1.8vmin,14px);
+    padding:clamp(7px,1.4vmin,10px) 0;
+    opacity:0.65;
+  }
 
   /* ================= 언어 선택 버튼 & 모달 (독립 네임스페이스) ================= */
   #langBtn {
@@ -364,11 +371,11 @@
   <div id="langModalOverlay">
     <div id="langModalBox">
       <div class="lang-modal-header">
-        <h2><span>🌐</span><span>Language</span></h2>
+        <h2><span>🌐</span><span id="langModalTitle">Language</span></h2>
         <button id="langModalClose" type="button">✕</button>
       </div>
       <div class="lang-search-wrap">
-        <input type="text" id="langSearchInput" placeholder="Search / 검색...">
+        <input type="text" id="langSearchInput" placeholder="Search...">
       </div>
       <div id="langGrid"></div>
     </div>
@@ -397,6 +404,7 @@
       </div>
 
       <button class="start-btn" id="startBtn">시작하기</button>
+      <a href="https://킹수학.com" target="_self" id="otherGameBtn" class="other-game-btn setup-other-game-btn">다른 게임 고르기</a>
     </div>
   </div>
 
@@ -411,7 +419,6 @@
     </div>
     <div class="bottom-bar" id="bottomBar">
       <button id="restartBtn">다시 뽑기</button>
-      <a href="https://킹수학.com" id="otherGameBtn" class="other-game-btn">다른 게임 고르기</a>
     </div>
   </div>
 
@@ -496,23 +503,23 @@
   const LANG_STORAGE_KEY = 'touchppobking_lang';
 
   const translations = {
-    ko: { 
-      name:'한국어', enName:'Korean', country:'kr', 
-      title:'터치 뽑킹<br><span class="en-sub block" style="font-size:0.4em; color:#ccc; margin-top:6px;">Touch Pick King</span>', 
-      subtitle:'손가락을 올리고 랜덤으로 뽑아요! <span class="en-sub">Place your finger & get picked!</span>', 
-      pickCountLabel:'몇 명 뽑을까요? <span class="en-sub">How many to pick?</span>', 
-      numberingLabel:'순서대로 숫자를 매길까요? <span class="en-sub">Number in order?</span>', 
-      yes:'예 <span class="en-sub">Yes</span>', 
-      no:'아니요 <span class="en-sub">No</span>', 
-      startBtn:'시작하기 <span class="en-sub">START</span>', 
-      instructionMain:'화면에 손가락을 올리세요 <span class="en-sub block">Put your finger on the screen</span>', 
-      instructionSub:'전원이 손가락을 올려주세요 <span class="en-sub block">Everyone, place your finger!</span>', 
-      drawing:'뽑습니다~ <span class="en-sub">Drawing...</span>', 
-      noOne:'아무도 없어요 😢 <span class="en-sub block">No one here</span>', 
-      noResult:'결과 없음 <span class="en-sub">No result</span>', 
-      complete:'🎉 뽑기 완료! <span class="en-sub">Complete!</span> 🎉', 
-      restartBtn:'다시 뽑기 <span class="en-sub">Restart</span>',
-      otherGameBtn:'다른 게임 고르기 <span class="en-sub">Other Games</span>'
+    ko: {
+      name:'한국어', enName:'Korean', country:'kr',
+      title:'터치 뽑킹',
+      subtitle:'손가락을 올리고 랜덤으로 뽑아요!',
+      pickCountLabel:'몇 명 뽑을까요?',
+      numberingLabel:'순서대로 숫자를 매길까요?',
+      yes:'예',
+      no:'아니요',
+      startBtn:'시작하기',
+      instructionMain:'화면에 손가락을 올리세요',
+      instructionSub:'전원이 손가락을 올려주세요',
+      drawing:'뽑습니다~',
+      noOne:'아무도 없어요 😢',
+      noResult:'결과 없음',
+      complete:'🎉 뽑기 완료! 🎉',
+      restartBtn:'다시 뽑기',
+      otherGameBtn:'다른 게임 고르기'
     },
     en: { name:'English', enName:'English', country:'us', title:'Touch Pick King', subtitle:'Put your finger down and get picked at random!', pickCountLabel:'How many should we pick?', numberingLabel:'Should we number them in order?', yes:'Yes', no:'No', startBtn:'Start', instructionMain:'Put your finger on the screen', instructionSub:'Everyone, place your finger!', drawing:'Drawing now~', noOne:'No one here 😢', noResult:'No result', complete:'🎉 Picking Complete! 🎉', restartBtn:'Pick Again', otherGameBtn:'Other Games' },
     zh: { name:'中文', enName:'Chinese', country:'cn', title:'触摸抽选王', subtitle:'把手指放上去，随机抽选吧！', pickCountLabel:'要抽选几个人？', numberingLabel:'要按顺序编号吗？', yes:'是', no:'否', startBtn:'开始', instructionMain:'把手指放在屏幕上', instructionSub:'大家都把手指放上去吧！', drawing:'开始抽选啦~', noOne:'没有人在这里 😢', noResult:'没有结果', complete:'🎉 抽选完成！🎉', restartBtn:'重新抽选', otherGameBtn:'其他游戏' },
@@ -572,6 +579,9 @@
 
     langBtnFlag.src = `https://flagcdn.com/w40/${translations[currentLang].country}.png`;
     langBtnName.textContent = translations[currentLang].name;
+
+    document.getElementById('langModalTitle').textContent = currentLang === 'ko' ? '언어' : 'Language';
+    langSearchInput.placeholder = currentLang === 'ko' ? '검색...' : 'Search...';
   }
 
   function renderLangGrid(filterText){
