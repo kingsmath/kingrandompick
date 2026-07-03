@@ -1,6 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
-<head>
+<head>    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5YW0T2C109"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag() { dataLayer.push(arguments); }
+        gtag('js', new Date());
+        gtag('config', 'G-5YW0T2C109');
+    </script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>터치 뽑킹</title>
@@ -8,6 +15,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Poor+Story&family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
   /* ================= 전자칠판 최적화 전역 설정 ================= */
+  :root {
+    --deco-font: 'Poor Story', cursive;
+  }
   html, body {
     width:100%; height:100%;
     margin:0; padding:0;
@@ -44,6 +54,21 @@
   }
   .screen.active { opacity:1; pointer-events:auto; }
 
+  /* ---------- 병기된 영어 텍스트 스타일 ---------- */
+  .en-sub {
+    font-size: 0.65em;
+    font-weight: 400;
+    opacity: 0.75;
+    margin-left: 6px;
+    letter-spacing: 0;
+    font-family: 'Noto Sans KR', sans-serif;
+  }
+  .en-sub.block {
+    display: block;
+    margin-top: 4px;
+    margin-left: 0;
+  }
+
   /* ---------- 설정 화면 ---------- */
   #setupScreen {
     background:radial-gradient(circle at 50% 20%, #1c2333, #05070c 70%);
@@ -60,7 +85,7 @@
     box-shadow:0 20px 60px rgba(0,0,0,0.5);
   }
   .title {
-    font-family:'Poor Story', cursive;
+    font-family:var(--deco-font);
     font-weight:400;
     font-size:clamp(38px, 7vmin, 64px);
     letter-spacing:1px;
@@ -89,7 +114,7 @@
   .stepper .count-display {
     min-width:clamp(70px,10vmin,100px);
     font-size:clamp(34px,6vmin,44px); font-weight:400; color:#fff;
-    font-family:'Poor Story', cursive;
+    font-family:var(--deco-font);
     text-align:center;
   }
 
@@ -105,7 +130,7 @@
 
   .start-btn {
     margin-top:4px; width:100%; padding:clamp(15px,2.8vmin,20px) 0; border:none; border-radius:clamp(14px,2.4vmin,20px);
-    font-size:clamp(20px,3.2vmin,24px); font-weight:400; font-family:'Poor Story', cursive;
+    font-size:clamp(20px,3.2vmin,24px); font-weight:400; font-family:var(--deco-font);
     letter-spacing:2px;
     background:linear-gradient(135deg, #ff6b6b, #ff8e53);
     color:#fff; cursor:pointer;
@@ -133,7 +158,7 @@
   }
 
   .timer {
-    font-family:'Poor Story', cursive;
+    font-family:var(--deco-font);
     font-weight:400;
     font-size:clamp(46px, 9vmin, 78px);
     color:#fff;
@@ -144,9 +169,9 @@
   .timer.pulse { transform:scale(1.25); }
 
   .status-text {
-    font-family:'Poor Story', cursive;
+    font-family:var(--deco-font);
     font-weight:400;
-    font-size:clamp(30px, 5.5vmin, 50px);
+    font-size:clamp(26px, 4.5vmin, 44px);
     color:#ffd166;
     opacity:0;
     transform:translateY(-16px) scale(0.85);
@@ -176,7 +201,7 @@
     width:clamp(28px,4.2vmin,38px); height:clamp(28px,4.2vmin,38px); border-radius:50%;
     background:#ff6b6b; color:#fff; font-weight:400; font-size:clamp(15px,2.6vmin,20px);
     display:flex; align-items:center; justify-content:center;
-    font-family:'Poor Story', cursive;
+    font-family:var(--deco-font);
     opacity:0; transform:scale(0.3);
     transition:all .3s cubic-bezier(.34,1.56,.64,1);
     box-shadow:0 4px 10px rgba(0,0,0,0.4);
@@ -196,32 +221,168 @@
 
   .bottom-bar {
     position:absolute; bottom:clamp(18px,4vh,34px); left:50%; transform:translate(-50%,0);
-    display:flex; gap:14px; opacity:0; pointer-events:none; transition:opacity .4s;
-    z-index:30;
+    display:flex; flex-direction:column; gap:12px; opacity:0; pointer-events:none; transition:opacity .4s;
+    z-index:30; align-items:center;
   }
   .bottom-bar.show { opacity:1; pointer-events:auto; }
-  .bottom-bar button {
+  
+  .bottom-bar button#restartBtn {
     padding:clamp(14px,2.6vmin,18px) clamp(26px,5vmin,40px); border-radius:clamp(12px,2vmin,16px); border:none;
     font-size:clamp(17px,2.8vmin,20px); font-weight:400;
-    font-family:'Poor Story', cursive; cursor:pointer;
+    font-family:var(--deco-font); cursor:pointer;
     background:linear-gradient(135deg,#4ecdc4,#2ba39a); color:#fff;
     box-shadow:0 10px 24px rgba(78,205,196,0.4);
     transition:transform .1s;
   }
-  .bottom-bar button:active { transform:scale(0.95); }
+  .bottom-bar button#restartBtn:active { transform:scale(0.95); }
+
+  /* 다른 게임 고르기 링크 버튼 스타일 */
+  .other-game-btn {
+    padding:clamp(10px,2vmin,14px) clamp(20px,4vmin,30px);
+    border-radius:clamp(10px,2vmin,14px);
+    border:1px solid rgba(255,255,255,0.2);
+    font-size:clamp(14px,2.2vmin,16px); font-weight:400;
+    font-family:var(--deco-font); cursor:pointer;
+    background:rgba(255,255,255,0.05); color:#aeb6c5;
+    text-decoration:none;
+    transition:transform .1s, background .15s;
+    display: flex; align-items: center; justify-content: center; text-align: center;
+  }
+  .other-game-btn:active { transform:scale(0.95); background:rgba(255,255,255,0.1); }
+
+  /* ================= 언어 선택 버튼 & 모달 (독립 네임스페이스) ================= */
+  #langBtn {
+    position:fixed; top:clamp(12px,2.4vmin,20px); right:clamp(12px,2.4vmin,20px);
+    z-index:9999;
+    display:flex; align-items:center; gap:8px;
+    padding:9px 14px 9px 10px;
+    border-radius:999px; border:1px solid rgba(255,255,255,0.15);
+    background:rgba(20,24,34,0.85);
+    color:#e6e9f0; font-size:14px; font-weight:700;
+    cursor:pointer; box-shadow:0 8px 20px rgba(0,0,0,0.4);
+    font-family:'Noto Sans KR', sans-serif;
+    transition:opacity .3s, transform .15s, background .15s;
+  }
+  #langBtn:active { transform:scale(0.95); }
+  #langBtn:hover { background:rgba(35,41,58,0.9); }
+  #langBtn.hidden-lang-btn { opacity:0; pointer-events:none; }
+  #langBtn .lang-flag-icon { width:20px; height:14px; border-radius:2px; object-fit:cover; display:block; }
+  #langBtn .lang-globe { font-size:15px; line-height:1; }
+  #langBtn .lang-current-name { max-width:110px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  #langBtn .lang-caret { font-size:10px; opacity:0.6; }
+
+  #langModalOverlay {
+    position:fixed; inset:0; z-index:9999;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.6);
+    opacity:0; visibility:hidden;
+    transition:opacity .25s ease;
+    padding:4vmin;
+  }
+  #langModalOverlay.lang-active { opacity:1; visibility:visible; }
+  #langModalOverlay, #langModalOverlay * { box-sizing:border-box !important; }
+
+  #langModalBox {
+    width:min(94vw, 640px);
+    max-height:min(84vh, 640px);
+    background:#12151f;
+    border:1px solid rgba(255,255,255,0.1);
+    border-radius:20px;
+    display:flex; flex-direction:column;
+    overflow:hidden;
+    box-shadow:0 24px 70px rgba(0,0,0,0.6);
+    transform:scale(0.95) translateY(-8px);
+    opacity:0;
+    transition:all .25s cubic-bezier(.34,1.56,.64,1);
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  #langModalOverlay.lang-active #langModalBox { transform:scale(1) translateY(0); opacity:1; }
+
+  .lang-modal-header {
+    display:flex; align-items:center; justify-content:space-between;
+    padding:16px 18px; border-bottom:1px solid rgba(255,255,255,0.08);
+    flex-shrink:0;
+  }
+  .lang-modal-header h2 {
+    margin:0; font-size:17px; font-weight:900; color:#fff;
+    display:flex; align-items:center; gap:8px;
+  }
+  #langModalClose {
+    width:34px; height:34px; border-radius:50%; border:none;
+    background:rgba(255,255,255,0.06); color:#aeb6c5;
+    font-size:16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center;
+  }
+  #langModalClose:active { transform:scale(0.9); }
+
+  .lang-search-wrap { padding:14px 18px 6px; flex-shrink:0; }
+  #langSearchInput {
+    width:100%; padding:12px 14px; border-radius:12px;
+    border:1px solid rgba(255,255,255,0.12);
+    background:rgba(255,255,255,0.05); color:#fff;
+    font-size:14px; outline:none;
+    font-family:'Noto Sans KR', sans-serif;
+  }
+  #langSearchInput::placeholder { color:#6b7280; }
+
+  #langGrid {
+    padding:14px 18px 20px;
+    overflow-y:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(150px, 1fr));
+    gap:10px;
+  }
+  .lang-item {
+    display:flex; align-items:center; gap:10px;
+    padding:10px 12px; border-radius:12px;
+    border:1px solid rgba(255,255,255,0.08);
+    background:rgba(255,255,255,0.03);
+    cursor:pointer; transition:all .15s;
+  }
+  .lang-item:hover { background:rgba(255,255,255,0.08); }
+  .lang-item.lang-selected {
+    border-color:#ffd166; background:rgba(255,209,102,0.12);
+  }
+  .lang-item .lang-flag-icon { width:26px; height:18px; border-radius:3px; object-fit:cover; flex-shrink:0; }
+  .lang-item .lang-item-text { display:flex; flex-direction:column; min-width:0; }
+  .lang-item .lang-item-name { font-size:13px; font-weight:700; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lang-item .lang-item-en { font-size:11px; color:#8892a6; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .lang-item-check { margin-left:auto; color:#ffd166; font-size:14px; flex-shrink:0; }
 </style>
 </head>
 <body>
 <div id="app">
 
+  <!-- 언어 선택 버튼 (설정 화면에서만 노출) -->
+  <button id="langBtn" type="button">
+    <span class="lang-globe">🌐</span>
+    <img class="lang-flag-icon" id="langBtnFlag" src="https://flagcdn.com/w40/kr.png" alt="">
+    <span class="lang-current-name" id="langBtnName">한국어</span>
+    <span class="lang-caret">▾</span>
+  </button>
+
+  <!-- 언어 선택 모달 -->
+  <div id="langModalOverlay">
+    <div id="langModalBox">
+      <div class="lang-modal-header">
+        <h2><span>🌐</span><span>Language</span></h2>
+        <button id="langModalClose" type="button">✕</button>
+      </div>
+      <div class="lang-search-wrap">
+        <input type="text" id="langSearchInput" placeholder="Search / 검색...">
+      </div>
+      <div id="langGrid"></div>
+    </div>
+  </div>
+
   <!-- 설정 화면 -->
   <div class="screen active" id="setupScreen">
     <div class="setup-card">
-      <div class="title">터치 뽑킹</div>
-      <div class="subtitle">손가락을 올리고 랜덤으로 뽑아요!</div>
+      <div class="title" id="titleText">터치 뽑킹</div>
+      <div class="subtitle" id="subtitleText">손가락을 올리고 랜덤으로 뽑아요!</div>
 
       <div class="option-row">
-        <span class="option-label">몇 명 뽑을까요?</span>
+        <span class="option-label" id="pickCountLabelText">몇 명 뽑을까요?</span>
         <div class="stepper">
           <button id="minusBtn">−</button>
           <div class="count-display" id="countDisplay">1</div>
@@ -230,7 +391,7 @@
       </div>
 
       <div class="option-row">
-        <span class="option-label">순서대로 숫자를 매길까요?</span>
+        <span class="option-label" id="numberingLabelText">순서대로 숫자를 매길까요?</span>
         <div class="toggle-group">
           <button class="toggle-btn selected" id="numYes">예</button>
           <button class="toggle-btn" id="numNo">아니요</button>
@@ -244,8 +405,8 @@
   <!-- 터치 화면 -->
   <div class="screen" id="touchScreen">
     <div class="instruction" id="instruction">
-      화면에 손가락을 올리세요
-      <span class="sub">전원이 손가락을 올려주세요</span>
+      <span id="instructionMainText">화면에 손가락을 올리세요</span>
+      <span class="sub" id="instructionSubText">전원이 손가락을 올려주세요</span>
     </div>
     <div class="top-banner">
       <div class="timer" id="timer"></div>
@@ -253,6 +414,7 @@
     </div>
     <div class="bottom-bar" id="bottomBar">
       <button id="restartBtn">다시 뽑기</button>
+      <a href="https://킹수학.com" id="otherGameBtn" class="other-game-btn">다른 게임 고르기</a>
     </div>
   </div>
 
@@ -328,7 +490,167 @@
   function showScreen(el){
     [setupScreen, touchScreen].forEach(s=>s.classList.remove('active'));
     el.classList.add('active');
+    updateLangBtnVisibility();
   }
+
+  // ================= 다국어(Language) 모듈 ================= //
+  const LANG_STORAGE_KEY = 'touchppobking_lang';
+
+  // 한국어에는 영어(en-sub)를 병기하도록 HTML 태그 포함하여 수정됨
+  const translations = {
+    ko: { 
+      name:'한국어', enName:'Korean', country:'kr', 
+      title:'터치 뽑킹<br><span class="en-sub block" style="font-size:0.4em; color:#ccc; margin-top:6px;">Touch Pick King</span>', 
+      subtitle:'손가락을 올리고 랜덤으로 뽑아요! <span class="en-sub">Place your finger & get picked!</span>', 
+      pickCountLabel:'몇 명 뽑을까요? <span class="en-sub">How many to pick?</span>', 
+      numberingLabel:'순서대로 숫자를 매길까요? <span class="en-sub">Number in order?</span>', 
+      yes:'예 <span class="en-sub">Yes</span>', 
+      no:'아니요 <span class="en-sub">No</span>', 
+      startBtn:'시작하기 <span class="en-sub">START</span>', 
+      instructionMain:'화면에 손가락을 올리세요 <span class="en-sub block">Put your finger on the screen</span>', 
+      instructionSub:'전원이 손가락을 올려주세요 <span class="en-sub block">Everyone, place your finger!</span>', 
+      drawing:'뽑습니다~ <span class="en-sub">Drawing...</span>', 
+      noOne:'아무도 없어요 😢 <span class="en-sub block">No one here</span>', 
+      noResult:'결과 없음 <span class="en-sub">No result</span>', 
+      complete:'🎉 뽑기 완료! <span class="en-sub">Complete!</span> 🎉', 
+      restartBtn:'다시 뽑기 <span class="en-sub">Restart</span>',
+      otherGameBtn:'다른 게임 고르기 <span class="en-sub">Other Games</span>'
+    },
+    en: { name:'English', enName:'English', country:'us', title:'Touch Pick King', subtitle:'Put your finger down and get picked at random!', pickCountLabel:'How many should we pick?', numberingLabel:'Should we number them in order?', yes:'Yes', no:'No', startBtn:'Start', instructionMain:'Put your finger on the screen', instructionSub:'Everyone, place your finger!', drawing:'Drawing now~', noOne:'No one here 😢', noResult:'No result', complete:'🎉 Picking Complete! 🎉', restartBtn:'Pick Again', otherGameBtn:'Other Games' },
+    zh: { name:'中文', enName:'Chinese', country:'cn', title:'触摸抽选王', subtitle:'把手指放上去，随机抽选吧！', pickCountLabel:'要抽选几个人？', numberingLabel:'要按顺序编号吗？', yes:'是', no:'否', startBtn:'开始', instructionMain:'把手指放在屏幕上', instructionSub:'大家都把手指放上去吧！', drawing:'开始抽选啦~', noOne:'没有人在这里 😢', noResult:'没有结果', complete:'🎉 抽选完成！🎉', restartBtn:'重新抽选', otherGameBtn:'其他游戏' },
+    ja: { name:'日本語', enName:'Japanese', country:'jp', title:'タッチ抽選キング', subtitle:'指を置いてランダムに選ばれよう！', pickCountLabel:'何人選びますか？', numberingLabel:'順番に番号をつけますか？', yes:'はい', no:'いいえ', startBtn:'スタート', instructionMain:'画面に指を置いてください', instructionSub:'みんな指を置いてね！', drawing:'選びます〜', noOne:'誰もいません 😢', noResult:'結果なし', complete:'🎉 選択完了！🎉', restartBtn:'もう一度選ぶ', otherGameBtn:'他のゲーム' },
+    es: { name:'Español', enName:'Spanish', country:'es', title:'Rey del Toque', subtitle:'¡Pon tu dedo y te elegiremos al azar!', pickCountLabel:'¿A cuántos elegimos?', numberingLabel:'¿Numeramos en orden?', yes:'Sí', no:'No', startBtn:'Empezar', instructionMain:'Pon el dedo en la pantalla', instructionSub:'¡Todos pongan su dedo!', drawing:'¡Elegimos ya!', noOne:'No hay nadie 😢', noResult:'Sin resultado', complete:'🎉 ¡Elección completa! 🎉', restartBtn:'Elegir de nuevo', otherGameBtn:'Otros juegos' },
+    fr: { name:'Français', enName:'French', country:'fr', title:'Roi du Toucher', subtitle:'Pose ton doigt et sois choisi au hasard !', pickCountLabel:'Combien de personnes choisir ?', numberingLabel:"Faut-il les numéroter dans l'ordre ?", yes:'Oui', no:'Non', startBtn:'Commencer', instructionMain:"Pose ton doigt sur l'écran", instructionSub:'Tout le monde pose son doigt !', drawing:'On tire au sort~', noOne:'Personne ici 😢', noResult:'Aucun résultat', complete:'🎉 Tirage terminé ! 🎉', restartBtn:'Retirer au sort', otherGameBtn:'Autres jeux' },
+    ru: { name:'Русский', enName:'Russian', country:'ru', title:'Король Прикосновений', subtitle:'Положи палец и получи случайный выбор!', pickCountLabel:'Сколько человек выбрать?', numberingLabel:'Пронумеровать по порядку?', yes:'Да', no:'Нет', startBtn:'Начать', instructionMain:'Положи палец на экран', instructionSub:'Пусть все положат палец!', drawing:'Выбираем~', noOne:'Здесь никого нет 😢', noResult:'Нет результата', complete:'🎉 Выбор завершён! 🎉', restartBtn:'Выбрать снова', otherGameBtn:'Другие игры' },
+    id: { name:'Bahasa Indonesia', enName:'Indonesian', country:'id', title:'Raja Sentuh Pilih', subtitle:'Taruh jarimu dan dipilih secara acak!', pickCountLabel:'Berapa orang yang akan dipilih?', numberingLabel:'Apakah kita beri nomor urut?', yes:'Ya', no:'Tidak', startBtn:'Mulai', instructionMain:'Letakkan jarimu di layar', instructionSub:'Semua taruh jarinya!', drawing:'Sedang memilih~', noOne:'Tidak ada siapa-siapa 😢', noResult:'Tidak ada hasil', complete:'🎉 Pemilihan selesai! 🎉', restartBtn:'Pilih Lagi', otherGameBtn:'Game Lainnya' },
+    vi: { name:'Tiếng Việt', enName:'Vietnamese', country:'vn', title:'Vua Chạm Chọn', subtitle:'Đặt ngón tay và được chọn ngẫu nhiên!', pickCountLabel:'Chọn bao nhiêu người?', numberingLabel:'Có đánh số theo thứ tự không?', yes:'Có', no:'Không', startBtn:'Bắt đầu', instructionMain:'Đặt ngón tay lên màn hình', instructionSub:'Mọi người hãy đặt ngón tay lên nhé!', drawing:'Đang chọn~', noOne:'Không có ai cả 😢', noResult:'Không có kết quả', complete:'🎉 Đã chọn xong! 🎉', restartBtn:'Chọn lại', otherGameBtn:'Trò chơi khác' },
+    th: { name:'ไทย', enName:'Thai', country:'th', title:'ราชาสัมผัสสุ่ม', subtitle:'วางนิ้วแล้วสุ่มเลือกกันเลย!', pickCountLabel:'จะสุ่มกี่คน?', numberingLabel:'จะใส่หมายเลขตามลำดับไหม?', yes:'ใช่', no:'ไม่ใช่', startBtn:'เริ่มเลย', instructionMain:'วางนิ้วบนหน้าจอ', instructionSub:'ทุกคนวางนิ้วกันเลย!', drawing:'กำลังสุ่ม~', noOne:'ไม่มีใครเลย 😢', noResult:'ไม่มีผลลัพธ์', complete:'🎉 สุ่มเสร็จแล้ว! 🎉', restartBtn:'สุ่มอีกครั้ง', otherGameBtn:'เกมอื่นๆ' },
+    'pt-br': { name:'Português', enName:'Portuguese (Brazil)', country:'br', title:'Rei do Toque', subtitle:'Coloque o dedo e seja escolhido aleatoriamente!', pickCountLabel:'Quantos vamos escolher?', numberingLabel:'Vamos numerar em ordem?', yes:'Sim', no:'Não', startBtn:'Começar', instructionMain:'Coloque o dedo na tela', instructionSub:'Todos coloquem o dedo!', drawing:'Sorteando~', noOne:'Ninguém aqui 😢', noResult:'Sem resultado', complete:'🎉 Sorteio concluído! 🎉', restartBtn:'Sortear de novo', otherGameBtn:'Outros jogos' },
+    hi: { name:'हिन्दी', enName:'Hindi', country:'in', title:'टच पिक किंग', subtitle:'अपनी उंगली रखें और बेतरतीब ढंग से चुने जाएं!', pickCountLabel:'कितने लोगों को चुनें?', numberingLabel:'क्या क्रम में संख्या दें?', yes:'हाँ', no:'नहीं', startBtn:'शुरू करें', instructionMain:'स्क्रीन पर अपनी उंगली रखें', instructionSub:'सब लोग अपनी उंगली रखें!', drawing:'चुन रहे हैं~', noOne:'कोई नहीं है 😢', noResult:'कोई परिणाम नहीं', complete:'🎉 चयन पूरा हुआ! 🎉', restartBtn:'फिर से चुनें', otherGameBtn:'अन्य गेम' },
+    bn: { name:'বাংলা', enName:'Bengali', country:'bd', title:'টাচ পিক কিং', subtitle:'তোমার আঙুল রাখো এবং এলোমেলোভাবে বেছে নেওয়া হও!', pickCountLabel:'কতজনকে বাছাই করব?', numberingLabel:'ক্রম অনুযায়ী সংখ্যা দেব কি?', yes:'হ্যাঁ', no:'না', startBtn:'শুরু করো', instructionMain:'স্ক্রিনে তোমার আঙুল রাখো', instructionSub:'সবাই আঙুল রাখো!', drawing:'বাছাই করা হচ্ছে~', noOne:'কেউ নেই 😢', noResult:'কোনো ফলাফল নেই', complete:'🎉 বাছাই সম্পন্ন! 🎉', restartBtn:'আবার বাছাই করো', otherGameBtn:'অন্যান্য গেম' },
+    tr: { name:'Türkçe', enName:'Turkish', country:'tr', title:'Dokunma Kralı', subtitle:'Parmağını koy ve rastgele seçil!', pickCountLabel:'Kaç kişi seçelim?', numberingLabel:'Sırayla numara verelim mi?', yes:'Evet', no:'Hayır', startBtn:'Başla', instructionMain:'Parmağını ekrana koy', instructionSub:'Herkes parmağını koysun!', drawing:'Seçiyoruz~', noOne:'Kimse yok 😢', noResult:'Sonuç yok', complete:'🎉 Seçim tamamlandı! 🎉', restartBtn:'Tekrar Seç', otherGameBtn:'Diğer oyunlar' },
+    de: { name:'Deutsch', enName:'German', country:'de', title:'Tipp-König', subtitle:'Leg deinen Finger drauf und werde zufällig ausgewählt!', pickCountLabel:'Wie viele sollen wir auswählen?', numberingLabel:'Sollen wir sie nummerieren?', yes:'Ja', no:'Nein', startBtn:'Starten', instructionMain:'Leg deinen Finger auf den Bildschirm', instructionSub:'Alle sollen den Finger auflegen!', drawing:'Wir wählen aus~', noOne:'Niemand da 😢', noResult:'Kein Ergebnis', complete:'🎉 Auswahl abgeschlossen! 🎉', restartBtn:'Nochmal auswählen', otherGameBtn:'Andere Spiele' },
+    it: { name:'Italiano', enName:'Italian', country:'it', title:'Re del Tocco', subtitle:'Metti il dito e vieni scelto a caso!', pickCountLabel:'Quanti scegliamo?', numberingLabel:'Numeriamo in ordine?', yes:'Sì', no:'No', startBtn:'Inizia', instructionMain:'Metti il dito sullo schermo', instructionSub:'Tutti mettano il dito!', drawing:'Stiamo scegliendo~', noOne:'Nessuno qui 😢', noResult:'Nessun risultato', complete:'🎉 Selezione completata! 🎉', restartBtn:'Scegli di nuovo', otherGameBtn:'Altri giochi' }
+  };
+
+  let currentLang = 'ko';
+  function t(key){
+    return (translations[currentLang] && translations[currentLang][key]) || translations.ko[key] || '';
+  }
+
+  const langBtn = document.getElementById('langBtn');
+  const langBtnFlag = document.getElementById('langBtnFlag');
+  const langBtnName = document.getElementById('langBtnName');
+  const langModalOverlay = document.getElementById('langModalOverlay');
+  const langModalClose = document.getElementById('langModalClose');
+  const langSearchInput = document.getElementById('langSearchInput');
+  const langGrid = document.getElementById('langGrid');
+
+  function updateLangBtnVisibility(){
+    if(setupScreen.classList.contains('active')){
+      langBtn.classList.remove('hidden-lang-btn');
+    } else {
+      langBtn.classList.add('hidden-lang-btn');
+    }
+  }
+
+  function applyStaticTranslations(){
+    // 브라우저 탭 타이틀은 HTML 태그를 제거하고 적용
+    document.title = t('title').replace(/<[^>]*>?/gm, ''); 
+    // HTML 태그가 포함되어 있으므로 innerHTML을 사용
+    document.getElementById('titleText').innerHTML = t('title');
+    document.getElementById('subtitleText').innerHTML = t('subtitle');
+    document.getElementById('pickCountLabelText').innerHTML = t('pickCountLabel');
+    document.getElementById('numberingLabelText').innerHTML = t('numberingLabel');
+    numYes.innerHTML = t('yes');
+    numNo.innerHTML = t('no');
+    document.getElementById('startBtn').innerHTML = t('startBtn');
+    document.getElementById('instructionMainText').innerHTML = t('instructionMain');
+    document.getElementById('instructionSubText').innerHTML = t('instructionSub');
+    document.getElementById('restartBtn').innerHTML = t('restartBtn');
+    document.getElementById('otherGameBtn').innerHTML = t('otherGameBtn');
+
+    document.documentElement.lang = currentLang === 'pt-br' ? 'pt' : currentLang;
+    document.documentElement.style.setProperty('--deco-font',
+      currentLang === 'ko' ? "'Poor Story', cursive" : "'Noto Sans KR', -apple-system, 'Segoe UI', sans-serif");
+
+    langBtnFlag.src = `https://flagcdn.com/w40/${translations[currentLang].country}.png`;
+    langBtnName.textContent = translations[currentLang].name;
+  }
+
+  function renderLangGrid(filterText){
+    const filter = (filterText||'').toLowerCase();
+    langGrid.innerHTML = '';
+    Object.keys(translations).forEach(code=>{
+      const lang = translations[code];
+      if(filter && !lang.name.toLowerCase().includes(filter) && !lang.enName.toLowerCase().includes(filter) && !code.toLowerCase().includes(filter)) return;
+      const item = document.createElement('div');
+      item.className = 'lang-item' + (code === currentLang ? ' lang-selected' : '');
+      item.innerHTML = `
+        <img class="lang-flag-icon" src="https://flagcdn.com/w40/${lang.country}.png" alt="">
+        <div class="lang-item-text">
+          <span class="lang-item-name">${lang.name}</span>
+          <span class="lang-item-en">${lang.enName}</span>
+        </div>
+        ${code === currentLang ? '<span class="lang-item-check">✓</span>' : ''}
+      `;
+      onTap(item, ()=> setLanguage(code, true));
+      langGrid.appendChild(item);
+    });
+  }
+
+  function openLangModal(){
+    renderLangGrid(langSearchInput.value);
+    langModalOverlay.classList.add('lang-active');
+    setTimeout(()=> langSearchInput.focus(), 80);
+  }
+  function closeLangModal(){
+    langModalOverlay.classList.remove('lang-active');
+  }
+
+  function setLanguage(code, userInitiated){
+    if(!translations[code]) code = 'ko';
+    currentLang = code;
+    applyStaticTranslations();
+    try{ localStorage.setItem(LANG_STORAGE_KEY, code); }catch(e){}
+    if(userInitiated){
+      try{
+        const url = new URL(window.location.href);
+        url.searchParams.set('lang', code);
+        window.history.pushState({}, '', url);
+      }catch(e){}
+      closeLangModal();
+    }
+    renderLangGrid(langSearchInput.value);
+  }
+
+  function detectInitialLang(){
+    try{
+      const urlLang = new URLSearchParams(window.location.search).get('lang');
+      if(urlLang && translations[urlLang]) return urlLang;
+      const saved = localStorage.getItem(LANG_STORAGE_KEY);
+      if(saved && translations[saved]) return saved;
+      const nav = (navigator.language || 'ko').toLowerCase();
+      if(translations[nav]) return nav;
+      const short = nav.split('-')[0];
+      if(short === 'pt') return 'pt-br';
+      if(translations[short]) return short;
+    }catch(e){}
+    return 'ko';
+  }
+
+  onTap(langBtn, openLangModal);
+  onTap(langModalClose, closeLangModal);
+  langModalOverlay.addEventListener('pointerdown', (e)=>{
+    if(e.target === langModalOverlay) closeLangModal();
+  });
+  document.addEventListener('keydown', (e)=>{
+    if(e.key === 'Escape' && langModalOverlay.classList.contains('lang-active')) closeLangModal();
+  });
+  langSearchInput.addEventListener('input', (e)=> renderLangGrid(e.target.value));
+  window.addEventListener('popstate', ()=>{
+    setLanguage(detectInitialLang(), false);
+  });
 
   // ---------------- 설정 화면 로직 (pointerdown 사용) ----------------
   const countDisplay = document.getElementById('countDisplay');
@@ -376,7 +698,7 @@
     countValue = 10;
     timerEl.textContent = '';
     statusText.classList.remove('show');
-    statusText.textContent = '';
+    statusText.innerHTML = '';
     bottomBar.classList.remove('show');
     instruction.style.opacity = '1';
   }
@@ -404,7 +726,7 @@
   function onCountdownEnd(){
     phase = 'revealing';
     instruction.style.opacity = '0';
-    statusText.textContent = '뽑습니다~';
+    statusText.innerHTML = t('drawing');
     statusText.classList.add('show');
     beep(500,0.15,'sawtooth',0.2);
 
@@ -418,7 +740,7 @@
     phase = 'revealed';
 
     if(touches.size === 0){
-      statusText.textContent = '아무도 없어요 😢';
+      statusText.innerHTML = t('noOne');
       statusText.classList.add('show');
       bottomBar.classList.add('show');
       return;
@@ -449,7 +771,7 @@
 
     setTimeout(()=>{
       fanfare();
-      statusText.textContent = winners.length>0 ? '🎉 뽑기 완료! 🎉' : '결과 없음';
+      statusText.innerHTML = winners.length>0 ? t('complete') : t('noResult');
       statusText.classList.add('show');
       bottomBar.classList.add('show');
     }, winners.length * 550 + 300);
@@ -519,6 +841,8 @@
   touchScreen.addEventListener('pointerup', handlePointerEnd);
   touchScreen.addEventListener('pointercancel', handlePointerEnd);
 
+  // 초기 실행 언어 설정
+  setLanguage(detectInitialLang(), false);
 })();
 </script>
 </body>
